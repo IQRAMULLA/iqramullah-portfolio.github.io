@@ -121,3 +121,43 @@ if (videoOverlay && aboutVideo) {
     videoOverlay.classList.add('hidden');
   });
 }
+
+/* ── LIGHTBOX ── */
+const overlay = document.createElement('div');
+overlay.className = 'lightbox-overlay';
+overlay.innerHTML = `
+  <button class="lightbox-close" aria-label="Close">✕</button>
+  <img src="" alt="" id="lightboxImg">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+`;
+document.body.appendChild(overlay);
+
+const lbImg     = overlay.querySelector('#lightboxImg');
+const lbCaption = overlay.querySelector('#lightboxCaption');
+const lbClose   = overlay.querySelector('.lightbox-close');
+
+function openLightbox(src, caption) {
+  lbImg.src = src;
+  lbCaption.textContent = caption || '';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Attach to all cert/experience images
+document.querySelectorAll('.cert-img-wrap img, .cert-img-small img, .cert-img-square img').forEach(img => {
+  img.addEventListener('click', () => {
+    const card = img.closest('.cert-card');
+    const name = card?.querySelector('.cert-card-name')?.textContent || '';
+    const issuer = card?.querySelector('.cert-card-issuer')?.textContent || '';
+    openLightbox(img.src, name && issuer ? `${name} — ${issuer}` : name);
+  });
+});
+
+lbClose.addEventListener('click', closeLightbox);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeLightbox(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
